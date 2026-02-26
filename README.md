@@ -1,15 +1,28 @@
-# Data-Generation
+# Data-Generation Toolkit
 
-This repository contains a professional-grade, schema-driven CSV dataset generator for analytics practice.
-It supports reproducible generation with fixed seeds, realistic distributions, table-level constraints,
-multi-table referential integrity, computed columns, and optional dirty-data corruption features.
-The project is designed for command-line usage and straightforward pandas ingestion.
+Multi-format, analytics-grade synthetic data toolkit.
 
-See full documentation in [`csv_generator/README.md`](csv_generator/README.md).
+## Modules
+- Legacy + stable CSV engine: [`csv_generator/`](csv_generator/README.md)
+- Namespaced CSV wrapper: [`generators/csv_generator/`](generators/csv_generator/README.md)
+- Parquet: [`generators/parquet_generator/`](generators/parquet_generator/README.md)
+- JSON / NDJSON: [`generators/json_generator/`](generators/json_generator/README.md)
+- SQLite seeding: [`generators/sqlite_seed/`](generators/sqlite_seed/README.md)
+- Event stream NDJSON: [`generators/event_stream_generator/`](generators/event_stream_generator/README.md)
 
-## Quick examples
+## Docs
+- [Quickstart](docs/quickstart.md)
+- [Schema DSL guide](docs/schemas_guide.md)
+- [Architecture](docs/architecture.md)
+
+## Recommended CLI pattern
 
 ```bash
-python -m csv_generator.generator.cli generate --schema csv_generator/schemas/retail_basic.yaml --rows 1000 --seed 42 --out csv_generator/output/retail_basic
-python -m csv_generator.generator.cli describe --schema csv_generator/schemas/hr_employees.yaml
+python -m generators.<module>.generator.cli <generate|describe|validate> --schema <path> --out <path> [--seed N] [--rows N] [--profile fast|realistic|dirty]
+```
+
+## Test
+
+```bash
+pytest
 ```

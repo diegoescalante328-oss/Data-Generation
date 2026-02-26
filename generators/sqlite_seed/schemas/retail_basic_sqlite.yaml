@@ -1,0 +1,25 @@
+{
+  "dataset": "retail_sqlite",
+  "seed": 9,
+  "tables": {
+    "customers": {
+      "rows": 12,
+      "columns": [
+        {"name": "customer_id", "type": "id", "constraints": {"primary_key": true}},
+        {"name": "country", "type": "categorical", "categories": ["US", "UK", "IN"], "constraints": {"not_null": true}}
+      ]
+    },
+    "orders": {
+      "rows": 35,
+      "indexes": ["customer_id"],
+      "columns": [
+        {"name": "order_id", "type": "id", "constraints": {"primary_key": true}},
+        {"name": "customer_id", "type": "integer"},
+        {"name": "amount", "type": "float", "min": 20, "max": 300}
+      ]
+    }
+  },
+  "relationships": [
+    {"parent_table": "customers", "parent_key": "customer_id", "child_table": "orders", "child_key": "customer_id"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "dataset": "web_events_json",
+  "seed": 101,
+  "output_mode": "ndjson",
+  "tables": {
+    "web_events": {
+      "rows": 60,
+      "columns": [
+        {"name": "event_id", "type": "id"},
+        {"name": "user", "type": "object", "fields": [
+          {"name": "id", "type": "integer", "min": 1, "max": 500},
+          {"name": "country", "type": "categorical", "categories": ["US", "IN", "BR", "DE"]},
+          {"name": "device", "type": "categorical", "categories": ["mobile", "desktop"], "probability": 0.9}
+        ]},
+        {"name": "event", "type": "object", "fields": [
+          {"name": "type", "type": "categorical", "categories": ["view", "click", "add_to_cart"]},
+          {"name": "ts", "type": "datetime", "start": "2024-01-01T00:00:00", "end": "2024-01-03T00:00:00"},
+          {"name": "page", "type": "categorical", "categories": ["/home", "/pricing", "/docs"]}
+        ]}
+      ]
+    }
+  }
+}
