@@ -1,0 +1,27 @@
+{
+  "dataset": "retail_basic_parquet",
+  "seed": 22,
+  "tables": {
+    "customers": {
+      "rows": 20,
+      "columns": [
+        {"name": "customer_id", "type": "id", "constraints": {"unique": true}},
+        {"name": "country", "type": "categorical", "categories": ["US", "CA", "UK"]}
+      ]
+    },
+    "orders": {
+      "rows": 80,
+      "partition_by": ["year", "month"],
+      "columns": [
+        {"name": "order_id", "type": "id"},
+        {"name": "customer_id", "type": "integer", "min": 1, "max": 20},
+        {"name": "year", "type": "categorical", "categories": [2023, 2024]},
+        {"name": "month", "type": "integer", "min": 1, "max": 12},
+        {"name": "amount", "type": "float", "min": 10, "max": 500}
+      ]
+    }
+  },
+  "relationships": [
+    {"parent_table": "customers", "parent_key": "customer_id", "child_table": "orders", "child_key": "customer_id"}
+  ]
+}
