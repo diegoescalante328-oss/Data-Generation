@@ -1,0 +1,30 @@
+{
+  "dataset": "hr_employees",
+  "seed": 19,
+  "tables": {
+    "employees": {
+      "rows": 250,
+      "columns": [
+        {"name": "employee_id", "type": "id", "constraints": {"primary_key": true, "unique": true}},
+        {"name": "dept", "type": "categorical", "categories": ["engineering", "sales", "support", "hr", "finance"], "weights": [0.38, 0.2, 0.18, 0.1, 0.14]},
+        {"name": "hire_date", "type": "date", "start": "2017-01-01", "end": "2024-01-01"},
+        {"name": "salary", "computed": "round(max(35000, normal(105000, 18000)), 2) if dept == 'engineering' else (round(max(30000, normal(78000, 14000)), 2) if dept == 'sales' else round(max(28000, normal(65000, 12000)), 2))"},
+        {"name": "performance_rating", "type": "float", "distribution": "normal", "mean": 3.4, "std": 0.7, "min": 1.0, "max": 5.0, "round": 1}
+      ]
+    },
+    "reviews": {
+      "rows": 700,
+      "columns": [
+        {"name": "review_id", "type": "id", "constraints": {"primary_key": true, "unique": true}},
+        {"name": "employee_id", "type": "integer"},
+        {"name": "hire_date", "type": "date", "start": "2017-01-01", "end": "2024-01-01"},
+        {"name": "review_date", "computed": "rand_days_after(hire_date, 180, 2200)"},
+        {"name": "rating", "type": "float", "distribution": "normal", "mean": 3.5, "std": 0.8, "min": 1.0, "max": 5.0, "round": 1},
+        {"name": "notes", "type": "categorical", "categories": ["meets expectations", "exceeds expectations", "needs coaching", "top performer"], "weights": [0.5, 0.25, 0.18, 0.07]}
+      ]
+    }
+  },
+  "relationships": [
+    {"parent_table": "employees", "parent_key": "employee_id", "child_table": "reviews", "child_key": "employee_id", "min_children": 1, "max_children": 6, "lookup_columns": {"hire_date": "hire_date"}}
+  ]
+}

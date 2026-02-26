@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+csv_generator/output/*/
+!csv_generator/output/.gitkeep

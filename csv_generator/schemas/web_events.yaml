@@ -1,0 +1,33 @@
+{
+  "dataset": "web_events",
+  "seed": 7,
+  "tables": {
+    "users": {
+      "rows": 400,
+      "columns": [
+        {"name": "user_id", "type": "id", "constraints": {"primary_key": true, "unique": true}},
+        {"name": "country", "type": "categorical", "categories": ["US", "CA", "UK", "DE", "IN"], "weights": [0.35, 0.12, 0.15, 0.13, 0.25]},
+        {"name": "signup_date", "type": "date", "start": "2022-01-01", "end": "2024-01-31"},
+        {"name": "device_type", "type": "categorical", "categories": ["mobile", "desktop", "tablet"], "weights": [0.62, 0.33, 0.05]}
+      ]
+    },
+    "events": {
+      "rows": 3500,
+      "corruption": {"duplicate_rate": 0.01, "type_noise": {"duration_sec": {"rate": 0.003, "value": "N/A"}}},
+      "columns": [
+        {"name": "event_id", "type": "id", "constraints": {"primary_key": true, "unique": true}},
+        {"name": "user_id", "type": "integer"},
+        {"name": "signup_date", "type": "date", "start": "2022-01-01", "end": "2024-01-31"},
+        {"name": "event_time", "computed": "rand_days_after(signup_date, 0, 365)"},
+        {"name": "event_type", "type": "categorical", "categories": ["view", "click", "purchase"], "weights": [0.78, 0.19, 0.03]},
+        {"name": "session_id", "type": "string_pattern", "prefix": "sess_", "width": 6},
+        {"name": "duration_sec", "type": "integer", "distribution": "poisson", "lambda": 52, "min": 1, "max": 900},
+        {"name": "page", "type": "categorical", "categories": ["/home", "/search", "/product", "/checkout", "/blog"], "weights": [0.2, 0.28, 0.32, 0.08, 0.12]},
+        {"name": "revenue", "computed": "round(max(0, normal(75, 20)), 2) if event_type == 'purchase' else 0"}
+      ]
+    }
+  },
+  "relationships": [
+    {"parent_table": "users", "parent_key": "user_id", "child_table": "events", "child_key": "user_id", "min_children": 1, "max_children": 20, "lookup_columns": {"signup_date": "signup_date"}}
+  ]
+}
