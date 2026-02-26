@@ -1,0 +1,45 @@
+{
+  "dataset": "retail_basic",
+  "seed": 42,
+  "tables": {
+    "customers": {
+      "rows": 300,
+      "columns": [
+        {"name": "customer_id", "type": "id", "constraints": {"primary_key": true, "unique": true, "monotonic_increasing": true}},
+        {"name": "signup_date", "type": "date", "start": "2020-01-01", "end": "2023-12-31"},
+        {"name": "region", "type": "categorical", "categories": ["north", "south", "east", "west"], "weights": [0.3, 0.25, 0.25, 0.2]},
+        {"name": "age", "type": "integer", "distribution": "normal", "mean": 38, "std": 12, "min": 18, "max": 85},
+        {"name": "email", "type": "email", "constraints": {"unique": true}}
+      ]
+    },
+    "products": {
+      "rows": 80,
+      "columns": [
+        {"name": "product_id", "type": "id", "constraints": {"primary_key": true, "unique": true}},
+        {"name": "category", "type": "categorical", "categories": ["electronics", "apparel", "grocery", "home"], "weights": [0.2, 0.3, 0.3, 0.2]},
+        {"name": "base_price", "type": "float", "distribution": "lognormal", "mean": 3.0, "sigma": 0.4, "min": 5, "max": 500, "round": 2}
+      ]
+    },
+    "orders": {
+      "rows": 1000,
+      "corruption": {"missing_by_column": {"discount": 0.01}, "outlier_rate": 0.01},
+      "columns": [
+        {"name": "order_id", "type": "id", "constraints": {"primary_key": true, "unique": true, "monotonic_increasing": true}},
+        {"name": "customer_id", "type": "integer"},
+        {"name": "product_id", "type": "integer"},
+        {"name": "signup_date", "type": "date", "start": "2020-01-01", "end": "2023-12-31"},
+        {"name": "base_price", "type": "float", "distribution": "uniform", "min": 10, "max": 50},
+        {"name": "order_date", "computed": "rand_days_after(signup_date, 0, 365)"},
+        {"name": "units", "type": "integer", "distribution": "poisson", "lambda": 2.4, "min": 1, "max": 12},
+        {"name": "unit_price", "computed": "round(base_price * (1 + normal(0, 0.05)), 2)"},
+        {"name": "discount", "type": "categorical", "categories": [0, 0.05, 0.1, 0.15, 0.2, 0.35, 0.5], "weights": [0.35, 0.2, 0.18, 0.12, 0.1, 0.04, 0.01]},
+        {"name": "revenue", "computed": "round(units * unit_price * (1 - float(discount or 0)), 2)"},
+        {"name": "channel", "type": "categorical", "categories": ["online", "store", "partner"], "weights": [0.65, 0.25, 0.1]}
+      ]
+    }
+  },
+  "relationships": [
+    {"parent_table": "customers", "parent_key": "customer_id", "child_table": "orders", "child_key": "customer_id", "min_children": 0, "max_children": 8, "lookup_columns": {"signup_date": "signup_date"}},
+    {"parent_table": "products", "parent_key": "product_id", "child_table": "orders", "child_key": "product_id", "min_children": 1, "max_children": 30, "lookup_columns": {"base_price": "base_price"}}
+  ]
+}
