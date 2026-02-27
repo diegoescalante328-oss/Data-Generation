@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bootstrap_lib import bootstrap, build_env, run_command, venv_python
+from bootstrap_lib import bootstrap, build_env, find_repo_root, run_command, venv_python
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = find_repo_root(Path(__file__))
 SCHEMA = REPO_ROOT / "generators/sqlite_seed/schemas/retail_basic_sqlite.yaml"
 EXAMPLE_OUT_DIR = REPO_ROOT / "all-in-one/_example_output"
 DB_PATH = EXAMPLE_OUT_DIR / "retail_demo.db"

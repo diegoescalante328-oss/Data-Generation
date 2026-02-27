@@ -66,12 +66,21 @@ FORMAT_REQUIREMENTS: dict[str, list[Path]] = {
 }
 
 REQUIRED_IMPORTS: dict[str, list[str]] = {
-    "csv": ["yaml", "faker"],
-    "json": ["yaml", "faker"],
-    "ndjson": ["yaml", "faker"],
-    "sqlite": ["yaml", "faker"],
-    "parquet": ["yaml", "faker", "pyarrow"],
-    "event_stream": ["yaml", "faker"],
+    "csv": ["yaml", "faker", "numpy"],
+    "json": ["yaml"],
+    "ndjson": ["yaml"],
+    "sqlite": ["yaml"],
+    "parquet": ["yaml", "pyarrow"],
+    "event_stream": ["yaml"],
+}
+
+FALLBACK_PIP_PACKAGES: dict[str, list[str]] = {
+    "csv": ["pyyaml", "faker", "numpy"],
+    "json": ["pyyaml"],
+    "ndjson": ["pyyaml"],
+    "sqlite": ["pyyaml"],
+    "parquet": ["pyyaml", "pyarrow"],
+    "event_stream": ["pyyaml"],
 }
 
 
@@ -121,9 +130,9 @@ def resolve_module(fmt: str) -> str:
 
 def collect_requirements(fmt: str) -> list[Path]:
     reqs: list[Path] = []
-    requirements_dev = REPO_ROOT / "requirements-dev.txt"
-    if requirements_dev.exists():
-        reqs.append(requirements_dev)
+    requirements_base = REPO_ROOT / "requirements-base.txt"
+    if requirements_base.exists():
+        reqs.append(requirements_base)
 
     for req in FORMAT_REQUIREMENTS.get(fmt, []):
         if req.exists() and req not in reqs:
@@ -131,23 +140,29 @@ def collect_requirements(fmt: str) -> list[Path]:
     return reqs
 
 
-def requirements_fingerprint(requirement_files: Sequence[Path]) -> str:
+def requirements_fingerprint(requirement_files: Sequence[Path], fallback_packages: Sequence[str]) -> str:
     digest = hashlib.sha256()
     for req in sorted(requirement_files):
         digest.update(str(req.relative_to(REPO_ROOT)).encode("utf-8"))
         digest.update(b"\0")
         digest.update(req.read_bytes())
         digest.update(b"\0")
+
+    digest.update(b"fallback\0")
+    for pkg in sorted(fallback_packages):
+        digest.update(pkg.encode("utf-8"))
+        digest.update(b"\0")
     return digest.hexdigest()
 
 
-def build_marker(fmt: str, requirement_files: Sequence[Path]) -> dict:
+def build_marker(fmt: str, requirement_files: Sequence[Path], fallback_packages: Sequence[str]) -> dict:
     return {
         "python_version": sys.version,
         "python_executable": str(sys.executable),
         "format": fmt,
         "requirements": [str(p.relative_to(REPO_ROOT)) for p in requirement_files],
-        "requirements_hash": requirements_fingerprint(requirement_files),
+        "fallback_packages": list(fallback_packages),
+        "requirements_hash": requirements_fingerprint(requirement_files, fallback_packages),
     }
 
 
@@ -197,7 +212,8 @@ def ensure_venv(*, verbose: bool) -> None:
 
 def install_deps_if_needed(fmt: str, *, reinstall: bool, verbose: bool) -> None:
     requirement_files = collect_requirements(fmt)
-    marker = build_marker(fmt, requirement_files)
+    fallback_packages = FALLBACK_PIP_PACKAGES.get(fmt, [])
+    marker = build_marker(fmt, requirement_files, fallback_packages)
     if not reinstall and marker_matches(marker):
         if verbose:
             print("[bootstrap] Existing install cache is valid; skipping dependency reinstall")
@@ -209,8 +225,8 @@ def install_deps_if_needed(fmt: str, *, reinstall: bool, verbose: bool) -> None:
     if requirement_files:
         for req in requirement_files:
             install_ok = _safe_install([py, "-m", "pip", "install", "-r", str(req)], verbose=verbose) and install_ok
-    else:
-        install_ok = _safe_install([py, "-m", "pip", "install", "pyyaml", "faker"], verbose=verbose) and install_ok
+    elif fallback_packages:
+        install_ok = _safe_install([py, "-m", "pip", "install", *fallback_packages], verbose=verbose) and install_ok
 
     if any((REPO_ROOT / p).exists() for p in ("pyproject.toml", "setup.cfg", "setup.py")):
         install_ok = _safe_install([py, "-m", "pip", "install", "-e", "."], verbose=verbose) and install_ok

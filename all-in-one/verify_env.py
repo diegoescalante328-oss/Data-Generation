@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-from bootstrap_lib import MARKER_PATH, REPO_ROOT, VENV_DIR, run_command_capture, venv_python
+import json
+
+from bootstrap_lib import MARKER_PATH, REPO_ROOT, VENV_DIR, find_repo_root, run_command_capture, venv_python
 
 
 def main() -> int:
+    detected_root = find_repo_root(Path(__file__))
     py = venv_python()
     if not py.exists():
         print(f"Missing virtual environment interpreter: {py}")
         return 1
 
     print(f"Repo root: {REPO_ROOT}")
+    if detected_root != REPO_ROOT:
+        print(f"Warning: runtime root detection mismatch ({detected_root})")
     print(f"Venv python: {py}")
 
     version = run_command_capture([str(py), "--version"])
