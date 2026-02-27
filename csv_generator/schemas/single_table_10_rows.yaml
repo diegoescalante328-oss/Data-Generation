@@ -1,0 +1,24 @@
+# Minimal single-table schema for CI smoke tests.
+dataset: single_table_10_rows
+seed: 101
+tables:
+  users:
+    rows: 10
+    columns:
+      - name: user_id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+      - name: age
+        type: integer
+        distribution: normal
+        mean: 35
+        std: 8
+        min: 18
+        max: 70
+      - name: country
+        type: categorical
+        categories: [US, CA, UK]
+        weights: [0.6, 0.25, 0.15]
+relationships: []

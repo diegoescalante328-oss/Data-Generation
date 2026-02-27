@@ -1,0 +1,25 @@
+# Minimal constraints schema for unique/not-null/monotonic checks.
+dataset: constraints_minimal
+seed: 103
+tables:
+  constrained:
+    rows: 20
+    columns:
+      - name: id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+          monotonic_increasing: true
+      - name: email
+        type: email
+        constraints:
+          unique: true
+          not_null: true
+      - name: status
+        type: categorical
+        categories: [active, paused, closed]
+        weights: [0.75, 0.2, 0.05]
+        constraints:
+          not_null: true
+relationships: []

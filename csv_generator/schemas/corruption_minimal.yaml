@@ -1,0 +1,29 @@
+# Minimal corruption schema for missingness + duplication behavior.
+dataset: corruption_minimal
+seed: 104
+tables:
+  events:
+    rows: 30
+    corruption:
+      missing_by_column:
+        channel: 0.1
+      duplicate_rate: 0.05
+      outlier_rate: 0.02
+    columns:
+      - name: event_id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+      - name: channel
+        type: categorical
+        categories: [email, push, sms]
+        weights: [0.6, 0.25, 0.15]
+      - name: value
+        type: float
+        distribution: normal
+        mean: 50
+        std: 10
+        min: 1
+        max: 200
+relationships: []
