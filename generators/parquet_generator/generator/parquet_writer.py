@@ -4,9 +4,15 @@ from pathlib import Path
 
 
 def write_parquet_tables(out_dir: str | Path, tables: dict[str, list[dict]], partition_by: dict[str, list[str]] | None = None) -> None:
-    import pyarrow as pa
-    import pyarrow.dataset as ds
-    import pyarrow.parquet as pq
+    try:
+        import pyarrow as pa
+        import pyarrow.dataset as ds
+        import pyarrow.parquet as pq
+    except ImportError as exc:
+        raise RuntimeError(
+            "Optional dependency 'pyarrow' is required. Install with: "
+            "pip install -r generators/parquet_generator/requirements.txt"
+        ) from exc
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -18,4 +24,4 @@ def write_parquet_tables(out_dir: str | Path, tables: dict[str, list[dict]], par
         if parts:
             ds.write_dataset(table, base_dir=str(target), format="parquet", partitioning=parts, existing_data_behavior="overwrite_or_ignore")
         else:
-            pq.write_table(table, target.with_suffix('.parquet'))
+            pq.write_table(table, target.with_suffix(".parquet"))

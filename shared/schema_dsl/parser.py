@@ -20,7 +20,13 @@ def load_schema(path: str | Path) -> Schema:
 
         data = yaml.safe_load(text)
     except ImportError:
-        data = json.loads(text)
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                "Optional dependency 'pyyaml' is required for non-JSON schema files. "
+                "Install with: pip install -r requirements-dev.txt"
+            ) from exc
     if not isinstance(data, dict):
         raise ValueError("Schema must be a mapping")
     if "dataset" not in data:
