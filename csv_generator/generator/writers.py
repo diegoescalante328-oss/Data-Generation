@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Any
 
 
-def write_tables(output_dir: str | Path, tables: dict[str, list[dict[str, Any]]], column_order: dict[str, list[str]]) -> None:
+def write_tables(output_dir: str | Path, tables: dict[str, list[dict[str, object]]], column_order: dict[str, list[str]]) -> None:
     """Write one CSV file per table with deterministic column order."""
 
     out = Path(output_dir)
