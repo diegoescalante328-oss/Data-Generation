@@ -10,7 +10,40 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_MARKER_FILES = ("requirements-dev.txt", "pyproject.toml", "setup.cfg", "setup.py")
+REQUIRED_REPO_DIRS = ("shared", "generators")
+
+
+class BootstrapError(RuntimeError):
+    pass
+
+
+def _looks_like_repo_root(path: Path) -> bool:
+    has_marker = any((path / marker).is_file() for marker in REPO_MARKER_FILES)
+    has_required_dirs = all((path / directory).is_dir() for directory in REQUIRED_REPO_DIRS)
+    return has_marker and has_required_dirs
+
+
+def find_repo_root(start: Path) -> Path:
+    current = start.resolve()
+    if current.is_file():
+        current = current.parent
+
+    while True:
+        if _looks_like_repo_root(current):
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+
+    raise BootstrapError(
+        "Could not auto-detect repository root. Expected an ancestor directory containing "
+        f"at least one marker file {REPO_MARKER_FILES} and both required directories {REQUIRED_REPO_DIRS}. "
+        f"Start path was: {start.resolve()}"
+    )
+
+
+REPO_ROOT = find_repo_root(Path(__file__).parent)
 VENV_DIR = REPO_ROOT / ".venv"
 MARKER_PATH = VENV_DIR / ".datagen_bootstrap.json"
 
@@ -32,9 +65,6 @@ FORMAT_REQUIREMENTS: dict[str, list[Path]] = {
     "event_stream": [REPO_ROOT / "generators/event_stream_generator/requirements.txt"],
 }
 
-
-
-
 REQUIRED_IMPORTS: dict[str, list[str]] = {
     "csv": ["yaml", "faker"],
     "json": ["yaml", "faker"],
@@ -45,8 +75,15 @@ REQUIRED_IMPORTS: dict[str, list[str]] = {
 }
 
 
-class BootstrapError(RuntimeError):
-    pass
+def validate_repo_root(repo_root: Path) -> None:
+    missing_dirs = [directory for directory in REQUIRED_REPO_DIRS if not (repo_root / directory).is_dir()]
+    if missing_dirs:
+        raise BootstrapError(
+            f"Detected repository root '{repo_root}' is missing required directories: {', '.join(missing_dirs)}"
+        )
+
+
+validate_repo_root(REPO_ROOT)
 
 
 def is_windows() -> bool:
@@ -68,8 +105,10 @@ def run_command_capture(cmd: Sequence[str], *, env: dict[str, str] | None = None
 
 
 def module_exists(module: str) -> bool:
-    module_path = REPO_ROOT / f"{module.replace('.', '/')}.py"
-    return module_path.exists()
+    module_parts = module.split(".")
+    module_file = REPO_ROOT.joinpath(*module_parts).with_suffix(".py")
+    package_init = REPO_ROOT.joinpath(*module_parts, "__init__.py")
+    return module_file.exists() or package_init.exists()
 
 
 def resolve_module(fmt: str) -> str:

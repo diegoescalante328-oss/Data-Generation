@@ -82,6 +82,18 @@ This folder provides the **recommended Option B experience** for this repository
    - Validation writes `validation_report.json` in the output directory context used by generator CLIs.
    - Bootstrap cache marker is `.venv/.datagen_bootstrap.json`.
 
+
+## Repository root detection
+
+`all-in-one/datagen_bootstrap.py` auto-detects the repository root by walking upward from the script location until it finds a directory that has:
+
+- at least one marker file: `requirements-dev.txt`, `pyproject.toml`, `setup.cfg`, or `setup.py`
+- both required directories: `shared/` and `generators/`
+
+This avoids brittle assumptions about exact script placement and keeps `.venv/` and bootstrap cache files anchored to the detected repo root.
+
+Common failure mode: if you copy or move the bootstrap script outside this repository tree, auto-detection will fail with a `BootstrapError` describing the expected markers and directories.
+
 ## CLI contract (single entrypoint)
 
 `all-in-one/datagen_bootstrap.py` supports:
