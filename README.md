@@ -2,6 +2,12 @@
 
 Multi-format, analytics-grade synthetic data toolkit.
 
+## Recommended start (Option B)
+
+Use the all-in-one bootstrap workflow: [`all-in-one/README.md`](all-in-one/README.md).
+
+This is the recommended model for this project: one bootstrap entrypoint that creates/uses `.venv/`, installs dependencies locally, and runs generator CLIs via the venv Python.
+
 ## Modules
 - Legacy + stable CSV engine: [`csv_generator/`](csv_generator/README.md)
 - Namespaced CSV wrapper: [`generators/csv_generator/`](generators/csv_generator/README.md)
@@ -22,20 +28,11 @@ python -m generators.<module>.generator.cli <generate|describe|validate> --schem
 ```
 
 
-## One-file bootstrap runner
+## Option B bootstrap runner
 
-Use the root script when you want a true single-command workflow on a fresh machine.
-It creates `.venv/`, installs dependencies, then routes to the matching generator CLI.
+Primary runner: `python all-in-one/datagen_bootstrap.py ...`
 
-```bash
-python datagen_onefile.py generate --schema generators/sqlite_seed/schemas/retail_basic_sqlite.yaml --out out/retail.db --format sqlite --seed 123
-python datagen_onefile.py validate --schema generators/sqlite_seed/schemas/retail_basic_sqlite.yaml --out out/retail.db --format sqlite
-```
-
-### Troubleshooting
-- Corporate proxy / offline hosts: set `PIP_INDEX_URL` / `PIP_EXTRA_INDEX_URL` before running.
-- Permission errors creating `.venv/`: run from a writable directory checkout.
-- Force refresh dependencies: add `--reinstall`.
+See full step-by-step instructions in [`all-in-one/README.md`](all-in-one/README.md).
 
 ## Test
 

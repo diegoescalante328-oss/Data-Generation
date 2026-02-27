@@ -1,4 +1,7 @@
 __pycache__/
 *.pyc
+.venv/
 csv_generator/output/*/
 !csv_generator/output/.gitkeep
+all-in-one/_example_output/
+all-in-one/output/
