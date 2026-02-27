@@ -4,7 +4,7 @@ dataset: hr_employees
 seed: 19
 tables:
   employees:
-    rows: 500
+    rows: 25
     columns:
       - name: employee_id
         type: id
@@ -36,7 +36,7 @@ tables:
         max: 5.0
         round: 1
   reviews:
-    rows: 1400
+    rows: 60
     columns:
       - name: review_id
         type: id

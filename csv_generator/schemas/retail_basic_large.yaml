@@ -4,7 +4,7 @@ dataset: retail_basic
 seed: 42
 tables:
   customers:
-    rows: 5000
+    rows: 50000000000
     columns:
       - name: customer_id
         type: id
@@ -32,7 +32,7 @@ tables:
         constraints:
           unique: true
   products:
-    rows: 400
+    rows: 30000
     columns:
       - name: product_id
         type: id
@@ -59,11 +59,11 @@ tables:
         # Heavily skewed so a small head set captures most demand.
         weights: [0.12, 0.34, 0.54]
   orders:
-    rows: 18000
+    rows: 120
     corruption:
       missing_by_column:
         discount_rate: 0.01
-      outlier_rate: 0.01
+      outlier_rate: 0.02
     columns:
       - name: order_id
         type: id
@@ -89,7 +89,7 @@ tables:
         # Discounts are intentionally skewed toward no/low discount.
         weights: [0.42, 0.26, 0.2, 0.09, 0.03]
   order_items:
-    rows: 42000
+    rows: 12000000
     corruption:
       missing_by_column:
         unit_price: 0.002

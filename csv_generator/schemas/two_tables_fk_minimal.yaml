@@ -1,0 +1,39 @@
+# Minimal two-table schema for FK behavior and lookup column propagation.
+dataset: two_tables_fk_minimal
+seed: 102
+tables:
+  parents:
+    rows: 12
+    columns:
+      - name: parent_id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+      - name: created_on
+        type: date
+        start: '2024-01-01'
+        end: '2024-01-15'
+  children:
+    rows: 24
+    columns:
+      - name: child_id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+      - name: parent_id
+        type: integer
+      - name: created_on
+        type: date
+        start: '2024-01-01'
+        end: '2024-01-15'
+relationships:
+  - parent_table: parents
+    parent_key: parent_id
+    child_table: children
+    child_key: parent_id
+    min_children: 1
+    max_children: 3
+    lookup_columns:
+      created_on: created_on

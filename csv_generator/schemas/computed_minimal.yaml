@@ -1,0 +1,29 @@
+# Minimal computed-column schema for deterministic expression evaluation.
+dataset: computed_minimal
+seed: 105
+tables:
+  line_items:
+    rows: 15
+    columns:
+      - name: line_id
+        type: id
+        constraints:
+          primary_key: true
+          unique: true
+      - name: units
+        type: integer
+        distribution: poisson
+        lambda: 2
+        min: 1
+        max: 8
+      - name: unit_price
+        type: float
+        distribution: lognormal
+        mean: 2.8
+        sigma: 0.35
+        min: 1
+        max: 120
+        round: 2
+      - name: revenue
+        computed: round(units * unit_price, 2)
+relationships: []
