@@ -15,3 +15,12 @@ def test_primary_keys_are_unique() -> None:
     assert len(customer_ids) == len(set(customer_ids))
     assert len(product_ids) == len(set(product_ids))
     assert len(order_ids) == len(set(order_ids))
+
+
+def test_not_null_and_bounds() -> None:
+    schema = load_schema("csv_generator/schemas/retail_basic.yaml")
+    tables, _, _ = generate_dataset(schema, rows_override=30, seed_override=12)
+
+    for row in tables["customers"]:
+        assert row["customer_id"] is not None
+        assert 18 <= row["age"] <= 85

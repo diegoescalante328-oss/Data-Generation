@@ -5,7 +5,9 @@ It creates realistic CSV tables with configurable data types, distributions, con
 foreign-key relationships, computed columns, and optional dirty-data corruption.
 The system is reproducible: use the same schema + seed and you get identical output.
 
-## Install
+## Option B local `.venv` workflow
+
+Use the repository-local virtual environment (Option B) so dependencies stay local to the repo.
 
 ```bash
 python -m venv .venv
@@ -13,14 +15,32 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r csv_generator/requirements.txt
 ```
 
-## CLI usage
+You can then run the generator directly via module execution:
 
 ```bash
+python -m csv_generator.generator.cli describe --schema csv_generator/schemas/retail_basic.yaml
 python -m csv_generator.generator.cli generate --schema csv_generator/schemas/retail_basic.yaml --rows 1000 --seed 42 --out csv_generator/output/retail_basic
-python -m csv_generator.generator.cli describe --schema csv_generator/schemas/web_events.yaml
+python -m csv_generator.generator.cli validate --schema csv_generator/schemas/retail_basic.yaml --rows 100 --seed 42 --out csv_generator/output/retail_basic_validation.json
 ```
 
-## Schema DSL (YAML)
+## CLI commands
+
+The generator CLI supports:
+- `describe`
+- `generate`
+- `validate`
+
+Shared flags:
+- `--schema PATH`
+- `--out PATH` (required for `generate`, optional for `describe`, report path/dir for `validate`)
+- `--seed INT`
+- `--verbose` (prints full traceback on failures)
+
+By default, errors are concise and do not print Python stack traces. Use `--verbose` (or set `DEBUG=1`) for full tracebacks.
+
+Schema paths are resolved relative to your current working directory.
+
+## Schema DSL (YAML/JSON)
 
 Top-level keys:
 - `dataset`: dataset name
@@ -52,16 +72,12 @@ relationships:
     max_children: 8
 ```
 
-## Add a new schema
+## Dependency notes
 
-1. Create a new YAML file under `csv_generator/schemas/`.
-2. Define tables, columns, and optional relationships/corruption.
-3. Run `describe` to validate structure.
-4. Run `generate` to produce CSVs in your chosen output folder.
+- `faker` is optional at runtime; if unavailable, the generator uses a deterministic built-in fallback for name/email/city/state fields.
+- `pyyaml` is recommended for YAML schema parsing. Without it, JSON-compatible schemas still work; non-JSON YAML will error with an actionable install message.
 
-## Notes on realism
+## Breaking changes
 
-- Weighted categorical values model skewed behavior.
-- Numeric distributions support uniform, normal, lognormal, and poisson.
-- Faker-backed fields (name/email/city/state) gracefully fall back if Faker is unavailable.
-- Corruption controls let you simulate missing values, duplicates, outliers, and type noise.
+- Added new `validate` subcommand that emits a structured JSON validation report.
+- CLI now catches common runtime/schema errors and returns concise error messages by default.
