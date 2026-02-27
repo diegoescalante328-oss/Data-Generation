@@ -21,6 +21,22 @@ Multi-format, analytics-grade synthetic data toolkit.
 python -m generators.<module>.generator.cli <generate|describe|validate> --schema <path> --out <path> [--seed N] [--rows N] [--profile fast|realistic|dirty]
 ```
 
+
+## One-file bootstrap runner
+
+Use the root script when you want a true single-command workflow on a fresh machine.
+It creates `.venv/`, installs dependencies, then routes to the matching generator CLI.
+
+```bash
+python datagen_onefile.py generate --schema generators/sqlite_seed/schemas/retail_basic_sqlite.yaml --out out/retail.db --format sqlite --seed 123
+python datagen_onefile.py validate --schema generators/sqlite_seed/schemas/retail_basic_sqlite.yaml --out out/retail.db --format sqlite
+```
+
+### Troubleshooting
+- Corporate proxy / offline hosts: set `PIP_INDEX_URL` / `PIP_EXTRA_INDEX_URL` before running.
+- Permission errors creating `.venv/`: run from a writable directory checkout.
+- Force refresh dependencies: add `--reinstall`.
+
 ## Test
 
 ```bash
